@@ -29,9 +29,22 @@ exports.lookup = (ip) ->
   return -1 unless ip
 
   find = this.ip2long ip
+  res = bin_s(find,gindex,0,gindex.length-1)
 
-  for line, i in gindex
-   if find >= line[GEO_FIELD_MIN] and find <= line[GEO_FIELD_MAX]
-    return normalize line
+  if res != null
+    return normalize res
+  else 
+    return null
 
-  return null
+bin_s = (needle,haystack,min,max) ->
+
+  mid = (max+min)//2
+
+  if max<min
+    return null
+  else if needle > haystack[mid][GEO_FIELD_MAX]
+    return bin_s(needle,haystack,(mid+1),max)
+  else if needle < haystack[mid][GEO_FIELD_MAX]
+    return bin_s(needle,haystack,min,(mid-1))
+  else if needle >= haystack[mid][GEO_FIELD_MIN] and needle <= haystack[mid][GEO_FIELD_MAX]
+    return haystack[mid]
